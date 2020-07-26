@@ -5,6 +5,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const ExtensionReloader = require('webpack-extension-reloader');
 const { VueLoaderPlugin } = require('vue-loader');
 const { version } = require('./package.json');
+const path = require('path');
 
 const config = {
   mode: process.env.NODE_ENV,
@@ -20,6 +21,9 @@ const config = {
   },
   resolve: {
     extensions: ['.js', '.vue'],
+    alias: {
+      '@': path.resolve('src'),
+    }
   },
   module: {
     rules: [
@@ -63,6 +67,11 @@ const config = {
           emitFile: true,
           esModule: false,
         },
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'eslint-loader',
       },
     ],
   },

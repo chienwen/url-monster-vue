@@ -1,5 +1,10 @@
-import * as types from './mutation-types'
+import * as types from './mutation-types';
 
-export const setFoo = ({ commit }, payload) => {
-  commit(types.UPDATE_FOO, payload)
-}
+export const fetchUrl = ({ commit }, payload) => {
+  chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  }, (tabs) => {
+    commit(types.SET_URL, tabs[0].url);
+  });
+};

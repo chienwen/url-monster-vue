@@ -1,1 +1,1 @@
-export const UPDATE_FOO = 'UPDATE_FOO'
+export const SET_URL = 'SET_URL'
