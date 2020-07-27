@@ -1,9 +1,9 @@
 <template>
   <div>
-    <p>
-      <ParsedUrl />
-      {{ url }}
-    </p>
+     <pre>
+     {{ url }}
+     </pre>
+     <ParsedUrl />
   </div>
 </template>
 
@@ -32,7 +32,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-p {
-  font-size: 20px;
-}
 </style>
