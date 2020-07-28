@@ -9,5 +9,9 @@ export default {
   },
   [types.SET_IS_PARSE_ERROR] (state, payload) {
     state.isParseError = payload;
+  },
+  [types.SET_CURRENT_TAB_INFO] (state, payload) {
+    state.currentTabId = payload.id;
+    state.currentTabUrl = payload.url;
   }
 }

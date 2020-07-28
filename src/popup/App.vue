@@ -1,8 +1,5 @@
 <template>
   <div class="url-monster-popup">
-     <pre>
-     {{ url }}
-     </pre>
      <ParsedUrl />
   </div>
 </template>
@@ -21,9 +18,6 @@ export default {
   },
   methods: {
     ...mapActions(['fetchUrl'])
-  },
-  computed: {
-    ...mapState(['url'])
   },
   created () {
     this.fetchUrl();

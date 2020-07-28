@@ -11,7 +11,9 @@ export default new Vuex.Store({
   state: {
     url: '',
     urlComponents: [],
-    isParseError: false
+    isParseError: false,
+    currentTabId: null,
+    currentTabUrl: ''
   },
   getters,
   mutations,

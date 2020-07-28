@@ -15,9 +15,19 @@
           v-if="!comp.isRequired"
           class="cta"
           @click="changeCompValue(undefined)"
-        >delete</a>
-        <a class="cta">copy</a>
-        <a class="cta">paste</a>
+          title="delete this component"
+        >del</a>
+        <a
+          v-if="comp.type === 'query'"
+          class="cta"
+          @click="copyToClipboard(comp.queryId + '=' + comp.value)"
+          title="copy key-value pair to clipboard"
+        >cKV</a>
+        <a
+          class="cta"
+          @click="copyToClipboard(comp.value)"
+          title="copy value to clipboard"
+        >cV</a>
       </span>
     </div>
     <div class="url-monster-comp-value">
@@ -44,7 +54,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setUrlComponent']),
+    ...mapActions(['setUrlComponent', 'copyToClipboard']),
     changeCompValue (val) {
       this.setUrlComponent({
         key: this.comp.key,
@@ -71,6 +81,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$color-red: #e74c3c;
 $color-blue-lightest: #ebf5fb;
 $color-blue-light: #aed6f1;
 $color-blue: #2e86c1;
@@ -82,13 +93,23 @@ $color-white: #fff;
   margin-bottom: 4px;
   border-radius: 4px;
   padding: 2px;
+  margin: 0 -2px;
 }
 .url-monster-comp.is-active {
   background-color: $color-yellow-light;
 }
+.actions {
+  text-align: right;
+}
 .actions .cta {
   color: $color-blue;
   cursor: pointer;
+}
+.actions .cta:hover {
+  text-decoration: underline;
+}
+.actions .cta:active {
+  color: $color-red;
 }
 .url-monster-value {
   width: -webkit-fill-available;
