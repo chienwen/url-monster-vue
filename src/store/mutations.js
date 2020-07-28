@@ -5,8 +5,9 @@ export default {
     state.url = payload;
   },
   [types.SET_URL_COMP] (state, payload) {
-    if (payload.action === 'all') {
-      state.urlComponents = payload.data;
-    }
+    state.urlComponents = payload;
+  },
+  [types.SET_IS_PARSE_ERROR] (state, payload) {
+    state.isParseError = payload;
   }
 }

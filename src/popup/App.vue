@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="url-monster-popup">
      <pre>
      {{ url }}
      </pre>
@@ -32,4 +32,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.url-monster-popup {
+  width: 400px;
+}
 </style>

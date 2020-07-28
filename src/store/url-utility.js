@@ -1,8 +1,22 @@
 const DEFAULT_QUERY_DELIMITER = '&';
+const isTypeRequired = {
+  scheme: true,
+  host: true,
+  path: true
+};
 export default {
+  fixComponentValue: (type, value) => {
+    if (isTypeRequired[type]) {
+      value = value.trim();
+    }
+    if (type === 'path' && value === '') {
+      value = '/';
+    }
+    return value;
+  },
   getUrlComponents: (url) => {
     const comps = [];
-    const match = url.match(/^([^:]+):\/\/(([^@/:]+)(:([^@:/]+))?@)?([^/@:]+)(:([\d]+))?(\/[^?]*)?(\?([^?#]+))?(#(.*))?/);
+    const match = url.match(/^([^:]+):\/\/(([^@/:]+)(:([^@:/]+))?@)?([^/@:]+)(:([\d]+))?(\/[^?]*)(\?([^?#]+))?(#(.*))?/);
     // const match = url.match(/^([^:]+):\/\/(([^@\/:]+)(:([^@:\/]+))?@)?([^\/@:]+)(:([\d]+))?(\/[^?]*)?(\?([^?#]+))?(#(.*))?/);
     /*
      * 0: "https://user:password@www.chienwen.net:234/path/a?a=1&b=2#fragment"
@@ -35,7 +49,8 @@ export default {
           comps.push({
             key: regMappingExceptQuery[idx],
             type: regMappingExceptQuery[idx],
-            value: match[idx]
+            value: match[idx],
+            isRequired: !!isTypeRequired[regMappingExceptQuery[idx]]
           });
         }
       });

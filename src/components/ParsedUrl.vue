@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div v-if="isParseError" class="alert-error">
+      Error: invalid URL format.
+    </div>
     <ParsedUrlComponent
       v-for="comp in urlComponents"
       :key="comp.key"
@@ -18,7 +21,7 @@ export default {
     ParsedUrlComponent
   },
   computed: {
-    ...mapState(['urlComponents'])
+    ...mapState(['urlComponents', 'isParseError'])
   },
   data () {
     return {}
@@ -27,4 +30,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$color-red: #e74c3c;
+$color-red-light: #fadbd8;
+
+.alert-error {
+  margin-bottom: 6px;
+  background-color: $color-red-light;
+  color: $color-red;
+  padding: 6px;
+  border-radius: 4px;
+}
 </style>
