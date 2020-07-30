@@ -61,6 +61,14 @@
             @click="onClickNewType($event.target.value)"
           >fragment
         </label>
+        <label>
+          <input
+            type="checkbox"
+            :disabled="newAddingType !== 'query'"
+            @click="onClickRaw"
+            v-model="isNewAddingQueryValueRaw"
+          >raw
+        </label>
       </div>
       <div class="new-input expand-row">
         <input
@@ -78,6 +86,8 @@
           placeholder="value"
           class="new-value"
           @focus="$event.target.select()"
+          @input="manipulateNewValue"
+          @paste="manipulateNewValue"
           v-model="newAddingValue"
           ref="newAddingValue"
         >
@@ -136,12 +146,17 @@ export default {
         this.newAddingKey = '#';
         this.$refs.newAddingValue.focus();
       }
+      this.isNewAddingQueryValueRaw = false;
     },
     addNewComponent () {
+      let value = this.newAddingValue;
+      if (this.newAddingType === 'query' && !this.isNewAddingQueryValueRaw) {
+        value = encodeURIComponent(value);
+      }
       this.setUrlComponent({
         type: this.newAddingType,
         queryId: this.newAddingType === 'query' ? this.newAddingKey : undefined,
-        value: this.newAddingValue
+        value
       });
       if (this.newAddingType === 'fragment') {
         this.newAddingType = 'query';
@@ -155,6 +170,7 @@ export default {
         setTimeout(() => {
           this.newAddingKey = match[0];
           this.newAddingValue = match[1];
+          this.manipulateNewValue();
           if (cb) {
             cb();
           }
@@ -172,6 +188,18 @@ export default {
           this.$refs.newAddingValue.focus();
         });
       }
+    },
+    onClickRaw () {
+      if (this.isNewAddingQueryValueRaw) {
+        this.newAddingValue = decodeURIComponent(this.newAddingValue);
+      } else {
+        this.newAddingValue = encodeURIComponent(this.newAddingValue);
+      }
+    },
+    manipulateNewValue () {
+      if (this.newAddingValue && this.newAddingType === 'query' && !this.isNewAddingQueryValueRaw) {
+        this.newAddingValue = decodeURIComponent(this.newAddingValue);
+      }
     }
   },
   data () {
@@ -179,7 +207,8 @@ export default {
       filterValue: '',
       newAddingType: 'query',
       newAddingKey: '',
-      newAddingValue: ''
+      newAddingValue: '',
+      isNewAddingQueryValueRaw: false
     }
   }
 }

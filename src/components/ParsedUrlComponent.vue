@@ -11,6 +11,9 @@
         <span :class="{meta: comp.queryId, main: !comp.queryId}">{{comp.type}}</span>
       </span>
       <span class="actions">
+        <label v-if="comp.type === 'query'">
+          <input type="checkbox" v-model="isRawQueryValue" @click="onRawClick">raw
+        </label>
         <a
           v-if="!comp.isRequired"
           class="cta"
@@ -33,7 +36,7 @@
     <div class="url-monster-comp-value">
       <input
         type="text"
-        :value="comp.value"
+        :value="getValue"
         @input="changeCompValue($event.target.value)"
         @focus="onFocus($event.target)"
         @blur="isFocusing = false"
@@ -56,6 +59,9 @@ export default {
   methods: {
     ...mapActions(['setUrlComponent', 'copyToClipboard']),
     changeCompValue (val) {
+      if (val && this.comp.type === 'query' && !this.isRawQueryValue) {
+        val = encodeURIComponent(val);
+      }
       this.setUrlComponent({
         key: this.comp.key,
         value: val
@@ -64,17 +70,34 @@ export default {
     onFocus (target) {
       target.select();
       this.isFocusing = true;
+    },
+    onRawClick () {
+      if (this.isRawQueryValue) {
+        // raw from un-clicked to clicked
+        // try to encode if already decoded
+        if (this.comp.value === decodeURIComponent(this.comp.value)) {
+          this.changeCompValue(encodeURIComponent(this.comp.value));
+        }
+      }
     }
   },
   computed: {
     isActive () {
       return this.isHovering || this.isFocusing;
+    },
+    getValue () {
+      let value = this.comp.value;
+      if (this.comp.type === 'query' && !this.isRawQueryValue) {
+        value = decodeURIComponent(value);
+      }
+      return value;
     }
   },
   data () {
     return {
       isHovering: false,
-      isFocusing: false
+      isFocusing: false,
+      isRawQueryValue: false
     }
   }
 }
