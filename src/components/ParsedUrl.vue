@@ -20,8 +20,14 @@
         @click="resetUrl"
         :disabled="currentTabUrl === url"
       >Reset</button>
-      <button class="btn">Compare</button>
-      <button class="btn">Options</button>
+      <button
+        class="btn"
+        @click="compareUrl"
+        :disabled="isParseError"
+      >Compare</button>
+      <!--
+        <button class="btn">Options</button>
+      -->
     </div>
     <pre class="url-raw">{{ url }}</pre>
     <div v-if="isParseError" class="alert-error">
@@ -121,7 +127,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setUrlComponent', 'submitURL', 'copyToClipboard', 'resetUrl']),
+    ...mapActions(['setUrlComponent', 'submitURL', 'copyToClipboard', 'resetUrl', 'compareUrl']),
     shouldShowAfterFilter (comp) {
       if (this.filterValue) {
         let strToSearch;

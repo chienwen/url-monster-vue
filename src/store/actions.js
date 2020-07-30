@@ -69,3 +69,7 @@ export const copyToClipboard = (noUsed, text) => {
   document.execCommand('copy');
   document.body.removeChild(textArea);
 };
+
+export const compareUrl = ({ state }) => {
+  chrome.tabs.create({ url: 'http://lilicoco.chienwen.net/app/urlMonster.html#u1=' + encodeURIComponent(state.url) });
+};
