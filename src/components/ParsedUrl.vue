@@ -34,7 +34,7 @@
       Error: invalid URL format.
     </div>
     <div class="expand-row">
-      <input type="text" placeholder="filter" class="input-filter" v-model="filterValue">
+      <input type="text" placeholder="filter" class="input-filter" v-model="filterValue" ref="inputFilter">
       <button :disabled="!filterValue" @click="filterValue = ''">clear</button>
     </div>
     <div class="url-comp-container">
@@ -216,6 +216,9 @@ export default {
       newAddingValue: '',
       isNewAddingQueryValueRaw: false
     }
+  },
+  mounted () {
+    this.$refs.inputFilter.focus();
   }
 }
 </script>

@@ -4,6 +4,17 @@ const isTypeRequired = {
   host: true,
   path: true
 };
+const baseScore = {
+  scheme: 15,
+  user: 25,
+  password: 24,
+  host: 35,
+  port: 30,
+  path: 40,
+  query: 50,
+  fragment: 30
+};
+const SCORE_FACTOR = 86400 * 7;
 export default {
   fixComponentValue: (type, value) => {
     if (isTypeRequired[type]) {
@@ -14,7 +25,7 @@ export default {
     }
     return value;
   },
-  getUrlComponents: (url) => {
+  getUrlComponents: (url, usageStatistic) => {
     const comps = [];
     const match = url.match(/^([^:]+):\/\/(([^@/:]+)(:([^@:/]+))?@)?([^/@:]+)(:([\d]+))?(\/[^?#]*)(\?([^?#]+))?(#(.*))?/);
     // const match = url.match(/^([^:]+):\/\/(([^@\/:]+)(:([^@:\/]+))?@)?([^\/@:]+)(:([\d]+))?(\/[^?]*)?(\?([^?#]+))?(#(.*))?/);
@@ -43,15 +54,22 @@ export default {
       9: 'path',
       13: 'fragment'
     };
+    let domain;
     if (match) {
       Object.keys(regMappingExceptQuery).forEach((idx) => {
         if (match[idx] !== undefined) {
+          const type = regMappingExceptQuery[idx];
           comps.push({
-            key: regMappingExceptQuery[idx],
-            type: regMappingExceptQuery[idx],
+            key: type,
+            type: type,
             value: match[idx],
-            isRequired: !!isTypeRequired[regMappingExceptQuery[idx]]
+            isRequired: !!isTypeRequired[type],
+            score: baseScore[type]
           });
+          if (type === 'host') {
+            const domainTokens = match[idx].split('.');
+            domain = domainTokens.splice(domainTokens.length - 2).join('.');
+          }
         }
       });
       // query
@@ -64,13 +82,26 @@ export default {
               key: 'query-' + querySeqId,
               type: 'query',
               queryId: tokens[0],
-              value: tokens.splice(1).join('=')
+              value: tokens.splice(1).join('='),
+              score: baseScore.query
             });
             querySeqId++;
           }
         });
       }
+      // add score
+      if (usageStatistic[domain]) {
+        const tsDict = usageStatistic[domain];
+        comps.forEach((comp) => {
+          const usageStatisticKey = comp.type === 'query' ? 'query:' + comp.queryId : comp.type;
+          if (tsDict[usageStatisticKey]) {
+            const sec = Math.floor((new Date()).getTime() / 1000) - tsDict[usageStatisticKey];
+            comp.score += (Math.atan((-sec + SCORE_FACTOR) / SCORE_FACTOR) + Math.PI / 2) / 3 / Math.PI * 4000 * 10000;
+          }
+        });
+      }
     }
+    comps.sort((a, b) => b.score - a.score);
     return comps;
   },
   getUrl: (urlComponents) => {

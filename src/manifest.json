@@ -3,7 +3,8 @@
   "description": "URL Monster Remake with Vue.js",
   "version": null,
   "permissions": [
-    "tabs"
+    "tabs",
+    "storage"
   ],
   "manifest_version": 2,
   "icons": {

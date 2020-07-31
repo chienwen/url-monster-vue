@@ -12,7 +12,7 @@
       </span>
       <span class="actions">
         <label v-if="comp.type === 'query'">
-          <input type="checkbox" v-model="isRawQueryValue" @click="onRawClick">raw
+          <input type="checkbox" v-model="isRawQueryValue" @click="onRawClick(); trackUsage();">raw
         </label>
         <a
           v-if="!comp.isRequired"
@@ -23,12 +23,12 @@
         <a
           v-if="comp.type === 'query'"
           class="cta"
-          @click="copyToClipboard(comp.queryId + '=' + comp.value)"
+          @click="copyToClipboard(comp.queryId + '=' + comp.value); trackUsage();"
           title="copy key-value pair to clipboard"
         >cKV</a>
         <a
           class="cta"
-          @click="copyToClipboard(comp.value)"
+          @click="copyToClipboard(comp.value); trackUsage();"
           title="copy value to clipboard"
         >cV</a>
       </span>
@@ -38,7 +38,7 @@
         type="text"
         :value="getValue"
         @input="changeCompValue($event.target.value)"
-        @focus="onFocus($event.target)"
+        @focus="onFocus($event.target); trackUsage();"
         @blur="isFocusing = false"
         class="url-monster-value"
       >
@@ -57,7 +57,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setUrlComponent', 'copyToClipboard']),
+    ...mapActions(['setUrlComponent', 'copyToClipboard', 'addUsageRecord']),
     changeCompValue (val) {
       if (val && this.comp.type === 'query' && !this.isRawQueryValue) {
         val = encodeURIComponent(val);
@@ -79,6 +79,9 @@ export default {
           this.changeCompValue(encodeURIComponent(this.comp.value));
         }
       }
+    },
+    trackUsage () {
+      this.addUsageRecord(this.comp.type === 'query' ? 'query:' + this.comp.queryId : this.comp.type);
     }
   },
   computed: {
