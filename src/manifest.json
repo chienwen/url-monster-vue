@@ -6,6 +6,7 @@
     "tabs",
     "storage"
   ],
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
   "manifest_version": 2,
   "icons": {
     "48": "icons/icon_48.png",

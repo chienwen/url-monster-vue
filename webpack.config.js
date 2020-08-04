@@ -95,7 +95,13 @@ const config = {
           jsonContent.version = version;
 
           if (config.mode === 'development') {
-            jsonContent['content_security_policy'] = "script-src 'self' 'unsafe-eval'; object-src 'self'";
+            if (jsonContent['content_security_policy']) {
+              const tokens = jsonContent['content_security_policy'].split(' ');
+              const insertPos = 2;
+              jsonContent['content_security_policy'] = tokens.slice(0, insertPos).concat(["'unsafe-eval'"]).concat(tokens.slice(insertPos)).join(' ');
+            } else {
+              jsonContent['content_security_policy'] = "script-src 'self' 'unsafe-eval'; object-src 'self'";
+            }
           }
 
           return JSON.stringify(jsonContent, null, 2);

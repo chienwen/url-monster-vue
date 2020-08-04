@@ -2,6 +2,7 @@ import * as types from './mutation-types';
 import urlUtil from './url-utility';
 const CHROME_STORAGE_MODE = 'local';
 const CHROME_STORAGE_USAGE_STATISTIC_VERSION = 0;
+const GA_TRACKING_ID = 'UA-110084363-6';
 
 export const fetchUrl = ({ commit, state }, payload) => {
   chrome.tabs.query({
@@ -56,6 +57,7 @@ export const setUrlComponent = ({ commit, state, dispatch }, payload) => {
   } else {
     commit(types.SET_URL_COMP, newComponents);
     commit(types.SET_IS_PARSE_ERROR, true);
+    dispatch('trackGA', ['p_error', 'parse']);
   }
 };
 
@@ -106,5 +108,31 @@ export const addUsageRecord = ({ commit, state }, payload) => {
         d: state.usageStatistic
       }
     });
+  }
+};
+
+export const trackGA = (noUsed, payload) => {
+  if (window._gaq) {
+    // window._gaq.push(['_trackEvent', category, action, opt_label, opt_value, opt_noninteraction]);
+    window._gaq.push(['_trackEvent'].concat(payload));
+  }
+};
+
+export const initGATracking = ({ state, dispatch }, payload) => {
+  payload = payload || 0;
+  if (window._gaq) {
+    window._gaq.push(['_setAccount', GA_TRACKING_ID]);
+    let domain;
+    state.urlComponents.forEach((comp) => {
+      if (comp.key === 'host') {
+        const domainTokens = comp.value.split('.');
+        domain = domainTokens.splice(domainTokens.length - 2).join('.');
+      }
+    });
+    window._gaq.push(['_trackPageview', '/popup' + (domain ? '/d/' + domain : '/e')]);
+  } else if (payload < 20) {
+    setTimeout(() => {
+      dispatch('initGATracking', payload + 1);
+    }, 500);
   }
 };

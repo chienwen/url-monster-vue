@@ -17,10 +17,11 @@ export default {
     ParsedUrl
   },
   methods: {
-    ...mapActions(['fetchUrl'])
+    ...mapActions(['fetchUrl', 'initGATracking'])
   },
   created () {
     this.fetchUrl();
+    this.initGATracking();
   }
 }
 </script>

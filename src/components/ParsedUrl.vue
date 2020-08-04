@@ -4,37 +4,41 @@
       <button
         class="btn"
         :disabled="isParseError"
-        @click="submitURL(false)"
+        @click="submitURL(false); trackCTAClick('apply')"
       >Apply</button>
       <button
         class="btn"
         :disabled="isParseError"
-        @click="submitURL(true)"
+        @click="submitURL(true); trackCTAClick('apply')"
       >New Tab</button>
       <button
         class="btn"
-        @click="copyToClipboard(url)"
+        @click="copyToClipboard(url); trackCTAClick('copy')"
       >Copy</button>
       <button
         class="btn"
-        @click="resetUrl"
+        @click="resetUrl(); trackCTAClick('reset')"
         :disabled="currentTabUrl === url"
       >Reset</button>
       <button
         class="btn"
-        @click="compareUrl"
+        @click="compareUrl(); trackCTAClick('compare')"
         :disabled="isParseError"
       >Compare</button>
-      <!--
-        <button class="btn">Options</button>
-      -->
     </div>
     <pre class="url-raw">{{ url }}</pre>
     <div v-if="isParseError" class="alert-error">
       Error: invalid URL format.
     </div>
     <div class="expand-row">
-      <input type="text" placeholder="filter" class="input-filter" v-model="filterValue" ref="inputFilter">
+      <input
+        type="text"
+        placeholder="filter"
+        class="input-filter"
+        v-model="filterValue"
+        @input="onInputFilter"
+        ref="inputFilter"
+      >
       <button :disabled="!filterValue" @click="filterValue = ''">clear</button>
     </div>
     <div class="url-comp-container">
@@ -127,7 +131,10 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setUrlComponent', 'submitURL', 'copyToClipboard', 'resetUrl', 'compareUrl']),
+    ...mapActions(['setUrlComponent', 'submitURL', 'copyToClipboard', 'resetUrl', 'compareUrl', 'trackGA']),
+    trackCTAClick (label) {
+      this.trackGA(['p_cta', 'click', label]);
+    },
     shouldShowAfterFilter (comp) {
       if (this.filterValue) {
         let strToSearch;
@@ -169,10 +176,12 @@ export default {
         this.newAddingValue = '';
         this.newAddingKey = '';
       }
+      this.trackGA(['p_new', 'click', 'sm_' + this.newAddingType, this.isNewAddingQueryValueRaw ? 1 : 0]);
     },
     splitNewQueryKey (text, cb) {
       const match = text.split('=');
       if (match.length === 2) {
+        this.trackGA(['p_new', 'split', cb ? 'input' : 'paste']);
         setTimeout(() => {
           this.newAddingKey = match[0];
           this.newAddingValue = match[1];
@@ -202,6 +211,12 @@ export default {
         this.newAddingValue = encodeURIComponent(this.newAddingValue);
       }
     },
+    onInputFilter () {
+      if (this.isFirstInputFilter) {
+        this.trackGA(['p_filter', 'input']);
+        this.isFirstInputFilter = false;
+      }
+    },
     manipulateNewValue () {
       if (this.newAddingValue && this.newAddingType === 'query' && !this.isNewAddingQueryValueRaw) {
         this.newAddingValue = decodeURIComponent(this.newAddingValue);
@@ -214,7 +229,8 @@ export default {
       newAddingType: 'query',
       newAddingKey: '',
       newAddingValue: '',
-      isNewAddingQueryValueRaw: false
+      isNewAddingQueryValueRaw: false,
+      isFirstInputFilter: true
     }
   },
   mounted () {

@@ -12,23 +12,23 @@
       </span>
       <span class="actions">
         <label v-if="comp.type === 'query'">
-          <input type="checkbox" v-model="isRawQueryValue" @click="onRawClick(); trackUsage();">raw
+          <input type="checkbox" v-model="isRawQueryValue" @click="onClickRaw">raw
         </label>
         <a
           v-if="!comp.isRequired"
           class="cta"
-          @click="changeCompValue(undefined)"
+          @click="onClickDelete"
           title="delete this component"
         >del</a>
         <a
           v-if="comp.type === 'query'"
           class="cta"
-          @click="copyToClipboard(comp.queryId + '=' + comp.value); trackUsage();"
+          @click="onClickCopy(true)"
           title="copy key-value pair to clipboard"
         >cKV</a>
         <a
           class="cta"
-          @click="copyToClipboard(comp.value); trackUsage();"
+          @click="onClickCopy(false)"
           title="copy value to clipboard"
         >cV</a>
       </span>
@@ -37,8 +37,8 @@
       <input
         type="text"
         :value="getValue"
-        @input="changeCompValue($event.target.value)"
-        @focus="onFocus($event.target); trackUsage();"
+        @input="onInput($event.target.value)"
+        @focus="onFocus($event.target)"
         @blur="isFocusing = false"
         class="url-monster-value"
       >
@@ -57,7 +57,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setUrlComponent', 'copyToClipboard', 'addUsageRecord']),
+    ...mapActions(['setUrlComponent', 'copyToClipboard', 'addUsageRecord', 'trackGA']),
     changeCompValue (val) {
       if (val && this.comp.type === 'query' && !this.isRawQueryValue) {
         val = encodeURIComponent(val);
@@ -70,8 +70,17 @@ export default {
     onFocus (target) {
       target.select();
       this.isFocusing = true;
+      this.trackGA(['p_comp', 'focus', this.comp.type]);
+      this.trackUsage();
     },
-    onRawClick () {
+    onInput (value) {
+      this.changeCompValue(value);
+      if (this.isFirstInput) {
+        this.trackGA(['p_comp', 'input', this.comp.type]);
+        this.isFirstInput = false;
+      }
+    },
+    onClickRaw () {
       if (this.isRawQueryValue) {
         // raw from un-clicked to clicked
         // try to encode if already decoded
@@ -79,6 +88,17 @@ export default {
           this.changeCompValue(encodeURIComponent(this.comp.value));
         }
       }
+      this.trackUsage();
+      this.trackGA(['p_comp', 'click', 'raw', this.isRawQueryValue ? 1 : 0]);
+    },
+    onClickDelete () {
+      this.changeCompValue(undefined);
+      this.trackGA(['p_comp', 'delete', this.comp.type]);
+    },
+    onClickCopy (isIncludingKey) {
+      this.copyToClipboard(isIncludingKey ? this.comp.queryId + '=' + this.comp.value : this.comp.value);
+      this.trackUsage();
+      this.trackGA(['p_comp', 'copy', comp.type, isIncludingKey ? 1 : 0])
     },
     trackUsage () {
       this.addUsageRecord(this.comp.type === 'query' ? 'query:' + this.comp.queryId : this.comp.type);
@@ -100,7 +120,8 @@ export default {
     return {
       isHovering: false,
       isFocusing: false,
-      isRawQueryValue: false
+      isRawQueryValue: false,
+      isFirstInput: true
     }
   }
 }
