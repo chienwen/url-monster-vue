@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>Hello world!</p>
+    <p>Options for this extension is not available yet.</p>
   </div>
 </template>
 

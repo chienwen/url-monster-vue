@@ -4,7 +4,7 @@ const CHROME_STORAGE_MODE = 'local';
 const CHROME_STORAGE_USAGE_STATISTIC_VERSION = 0;
 const GA_TRACKING_ID = 'UA-110084363-6';
 
-export const setFullUrl = ({ commit, state }, url) => {
+export const setFullUrl = ({ commit, state, dispatch }, url) => {
   url = url.trim();
   const comps = urlUtil.getUrlComponents(url, state.usageStatisticFixed);
   commit(types.SET_URL_COMP, comps);
