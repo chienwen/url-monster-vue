@@ -31,8 +31,8 @@ export default {
         cleanedDict[domain] = cleanedDomainDict;
       }
     });
-    state.usageStatisticFixed = payload;
     state.usageStatistic = payload;
+    state.usageStatisticFixed = JSON.parse(JSON.stringify(payload));
   },
   [types.SET_USAGE_STATISTIC_ONE] (state, payload) {
     if (!state.usageStatistic[payload.domain]) {
