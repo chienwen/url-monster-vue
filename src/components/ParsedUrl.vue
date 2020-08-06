@@ -26,7 +26,14 @@
         :disabled="isParseError"
       >Compare</button>
     </div>
-    <pre class="url-raw">{{ url }}</pre>
+    <div>
+      <input
+        class="input-full-url"
+        type="text"
+        v-model="editFullUrl"
+        @focus="$event.target.select(); trackGA(['p_furl', 'focus'])"
+      >
+    </div>
     <div v-if="isParseError" class="alert-error">
       Error: invalid URL format.
     </div>
@@ -128,10 +135,22 @@ export default {
         }
       }
       return false;
+    },
+    editFullUrl: {
+      set(fullUrl) {
+        this.setFullUrl(fullUrl);
+        if (this.isFirstInputFullUrl) {
+          this.trackGA(['p_furl', 'input']);
+          this.isFirstInputFullUrl = false;
+        }
+      },
+      get() {
+        return this.url;
+      }
     }
   },
   methods: {
-    ...mapActions(['setUrlComponent', 'submitURL', 'copyToClipboard', 'resetUrl', 'compareUrl', 'trackGA']),
+    ...mapActions(['setUrlComponent', 'submitURL', 'copyToClipboard', 'resetUrl', 'compareUrl', 'trackGA', 'setFullUrl']),
     trackCTAClick (label) {
       this.trackGA(['p_cta', 'click', label]);
     },
@@ -230,7 +249,8 @@ export default {
       newAddingKey: '',
       newAddingValue: '',
       isNewAddingQueryValueRaw: false,
-      isFirstInputFilter: true
+      isFirstInputFilter: true,
+      isFirstInputFullUrl: true
     }
   },
   mounted () {
@@ -242,6 +262,7 @@ export default {
 <style lang="scss" scoped>
 $color-red: #e74c3c;
 $color-red-light: #fadbd8;
+$color-blue-lightest: #ebf5fb;
 
 .alert-error {
   margin-bottom: 6px;
@@ -257,11 +278,9 @@ $color-red-light: #fadbd8;
 .new-value {
   flex-grow: 2;
 }
-.url-raw {
-  overflow-x: scroll;
-}
-.url-raw::-webkit-scrollbar {
-  display: none;
+.input-full-url {
+  width: -webkit-fill-available;
+  background-color: $color-blue-lightest;
 }
 .input-filter {
   width: -webkit-fill-available;
@@ -271,7 +290,7 @@ $color-red-light: #fadbd8;
   white-space: nowrap;
 }
 .url-comp-container {
-  max-height: 400px;
+  max-height: 360px;
   overflow-x: hidden;
   overflow-y: auto;
 }

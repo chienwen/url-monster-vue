@@ -4,19 +4,30 @@ const CHROME_STORAGE_MODE = 'local';
 const CHROME_STORAGE_USAGE_STATISTIC_VERSION = 0;
 const GA_TRACKING_ID = 'UA-110084363-6';
 
-export const fetchUrl = ({ commit, state }, payload) => {
+export const setFullUrl = ({ commit, state }, url) => {
+  url = url.trim();
+  const comps = urlUtil.getUrlComponents(url, state.usageStatisticFixed);
+  commit(types.SET_URL_COMP, comps);
+  commit(types.SET_URL, url);
+  const isParseError = url && comps.length === 0;
+  commit(types.SET_IS_PARSE_ERROR, isParseError);
+  if (isParseError) {
+    dispatch('trackGA', ['p_error', 'parse', 'furl']);
+  }
+};
+
+export const fetchUrl = ({ commit, state, dispatch }, payload) => {
   chrome.tabs.query({
     active: true,
     currentWindow: true
   }, (tabs) => {
     const url = tabs[0].url;
-    commit(types.SET_URL, url);
     commit(types.SET_CURRENT_TAB_INFO, tabs[0]);
     chrome.storage[CHROME_STORAGE_MODE].get('usageStatistic', res => {
       if (res.usageStatistic) {
         commit(types.SET_USAGE_STATISTIC_ALL, res.usageStatistic.d || {});
       }
-      commit(types.SET_URL_COMP, urlUtil.getUrlComponents(url, state.usageStatisticFixed));
+      dispatch('setFullUrl', url);
     });
   });
 };
@@ -57,7 +68,7 @@ export const setUrlComponent = ({ commit, state, dispatch }, payload) => {
   } else {
     commit(types.SET_URL_COMP, newComponents);
     commit(types.SET_IS_PARSE_ERROR, true);
-    dispatch('trackGA', ['p_error', 'parse']);
+    dispatch('trackGA', ['p_error', 'parse', 'comp']);
   }
 };
 

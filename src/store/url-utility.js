@@ -77,7 +77,7 @@ export default {
         let querySeqId = 0;
         match[11].split(/[&;]/).forEach((queryPair) => {
           const tokens = queryPair.split('=');
-          if (tokens.length >= 2) {
+          if (tokens.length >= 1) {
             comps.push({
               key: 'query-' + querySeqId,
               type: 'query',

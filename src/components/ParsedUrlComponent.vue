@@ -145,8 +145,12 @@ $color-white: #fff;
 .url-monster-comp.is-active {
   background-color: $color-yellow-light;
 }
+.url-monster-comp-title .title .main {
+  word-break: break-all;
+}
 .actions {
   text-align: right;
+  white-space: nowrap;
 }
 .actions .cta {
   color: $color-blue;
