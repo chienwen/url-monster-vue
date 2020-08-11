@@ -143,5 +143,8 @@ export default {
       url += '#' + dictExceptQuery.fragment;
     }
     return url;
+  },
+  decodeURIComponent: (str) => {
+    return decodeURIComponent(str.replace(/\+/g, '%20'));
   }
 };

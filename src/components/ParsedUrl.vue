@@ -121,6 +121,7 @@
 
 import ParsedUrlComponent from '@/components/ParsedUrlComponent.vue';
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+import urlUtil from '@/store/url-utility';
 
 export default {
   components: {
@@ -225,7 +226,7 @@ export default {
     },
     onClickRaw () {
       if (this.isNewAddingQueryValueRaw) {
-        this.newAddingValue = decodeURIComponent(this.newAddingValue);
+        this.newAddingValue = urlUtil.decodeURIComponent(this.newAddingValue);
       } else {
         this.newAddingValue = encodeURIComponent(this.newAddingValue);
       }
@@ -238,7 +239,7 @@ export default {
     },
     manipulateNewValue () {
       if (this.newAddingValue && this.newAddingType === 'query' && !this.isNewAddingQueryValueRaw) {
-        this.newAddingValue = decodeURIComponent(this.newAddingValue);
+        this.newAddingValue = urlUtil.decodeURIComponent(this.newAddingValue);
       }
     }
   },

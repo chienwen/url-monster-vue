@@ -48,6 +48,7 @@
 
 <script>
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+import urlUtil from '@/store/url-utility';
 
 export default {
   props: {
@@ -84,7 +85,7 @@ export default {
       if (this.isRawQueryValue) {
         // raw from un-clicked to clicked
         // try to encode if already decoded
-        if (this.comp.value === decodeURIComponent(this.comp.value)) {
+        if (this.comp.value === urlUtil.decodeURIComponent(this.comp.value)) {
           this.changeCompValue(encodeURIComponent(this.comp.value));
         }
       }
@@ -111,7 +112,7 @@ export default {
     getValue () {
       let value = this.comp.value;
       if (this.comp.type === 'query' && !this.isRawQueryValue) {
-        value = decodeURIComponent(value);
+        value = urlUtil.decodeURIComponent(value);
       }
       return value;
     }
