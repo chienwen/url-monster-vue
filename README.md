@@ -1,6 +1,6 @@
 # URL Monster
 
-[Install from Chrome Web Store](https://chrome.google.com/webstore/detail/url-monster/beabfimakokhfnnkabnjdelbkgaobhjh?hl=zh-TW&authuser=0)
+[Install from Chrome Web Store](https://chrome.google.com/webstore/detail/url-monster/beabfimakokhfnnkabnjdelbkgaobhjh)
 
 URL Monster can help you edit URL:
 1. List scheme/host/port/path/queries/fragment of the current URL as separate components
