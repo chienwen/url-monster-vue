@@ -74,18 +74,25 @@ export default {
       });
       // query
       if (match[11]) {
-        let querySeqId = 0;
+        const uniqueQueryKeySeq = {};
         match[11].split(/[&;]/).forEach((queryPair) => {
           const tokens = queryPair.split('=');
           if (tokens.length >= 1) {
+            const queryId = tokens[0];
+            let querySeq = '';
+            if (uniqueQueryKeySeq[queryId]) {
+              querySeq = '-' + uniqueQueryKeySeq[queryId];
+              uniqueQueryKeySeq[queryId] += 1;
+            } else {
+              uniqueQueryKeySeq[queryId] = 1;
+            }
             comps.push({
-              key: 'query-' + querySeqId,
+              key: 'query-' + queryId + querySeq,
               type: 'query',
-              queryId: tokens[0],
+              queryId,
               value: tokens.splice(1).join('='),
               score: baseScore.query
             });
-            querySeqId++;
           }
         });
       }
