@@ -1,8 +1,8 @@
 import * as types from './mutation-types';
 import urlUtil from './url-utility';
+import { trackEvent, trackPageView } from '../utils/ga4';
 const CHROME_STORAGE_MODE = 'local';
 const CHROME_STORAGE_USAGE_STATISTIC_VERSION = 0;
-const GA_TRACKING_ID = 'UA-110084363-6';
 
 export const setFullUrl = ({ commit, state, dispatch }, url) => {
   url = url.trim();
@@ -12,7 +12,7 @@ export const setFullUrl = ({ commit, state, dispatch }, url) => {
   const isParseError = url && comps.length === 0;
   commit(types.SET_IS_PARSE_ERROR, isParseError);
   if (isParseError) {
-    dispatch('trackGA', ['p_error', 'parse', 'furl']);
+    dispatch('trackGA', { eventName: 'parse_error', params: { error_type: 'furl' } });
   }
 };
 
@@ -68,7 +68,7 @@ export const setUrlComponent = ({ commit, state, dispatch }, payload) => {
   } else {
     commit(types.SET_URL_COMP, newComponents);
     commit(types.SET_IS_PARSE_ERROR, true);
-    dispatch('trackGA', ['p_error', 'parse', 'comp']);
+    dispatch('trackGA', { eventName: 'parse_error', params: { error_type: 'comp' } });
   }
 };
 
@@ -87,13 +87,17 @@ export const submitURL = ({ state }, isOpeningNewTab) => {
   window.close();
 };
 
-export const copyToClipboard = (noUsed, text) => {
-  const textArea = document.createElement('textarea');
-  textArea.value = text;
-  document.body.appendChild(textArea);
-  textArea.select();
-  document.execCommand('copy');
-  document.body.removeChild(textArea);
+export const copyToClipboard = async (noUsed, text) => {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (error) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+  }
 };
 
 export const compareUrl = ({ state }) => {
@@ -122,28 +126,18 @@ export const addUsageRecord = ({ commit, state }, payload) => {
   }
 };
 
-export const trackGA = (noUsed, payload) => {
-  if (window._gaq) {
-    // window._gaq.push(['_trackEvent', category, action, opt_label, opt_value, opt_noninteraction]);
-    window._gaq.push(['_trackEvent'].concat(payload));
-  }
+export const trackGA = async (noUsed, payload) => {
+  const { eventName, params } = payload;
+  await trackEvent(eventName, params);
 };
 
-export const initGATracking = ({ state, dispatch }, payload) => {
-  payload = payload || 0;
-  if (window._gaq) {
-    window._gaq.push(['_setAccount', GA_TRACKING_ID]);
-    let domain;
-    state.urlComponents.forEach((comp) => {
-      if (comp.key === 'host') {
-        const domainTokens = comp.value.split('.');
-        domain = domainTokens.splice(domainTokens.length - 2).join('.');
-      }
-    });
-    window._gaq.push(['_trackPageview', '/popup' + (domain ? '/d/' + domain : '/e')]);
-  } else if (payload < 20) {
-    setTimeout(() => {
-      dispatch('initGATracking', payload + 1);
-    }, 500);
-  }
+export const initGATracking = async ({ state }) => {
+  let domain;
+  state.urlComponents.forEach((comp) => {
+    if (comp.key === 'host') {
+      const domainTokens = comp.value.split('.');
+      domain = domainTokens.splice(domainTokens.length - 2).join('.');
+    }
+  });
+  await trackPageView('/popup' + (domain ? '/d/' + domain : '/e'), 'URL Monster Popup');
 };

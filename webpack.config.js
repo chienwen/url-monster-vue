@@ -6,12 +6,12 @@ const ExtensionReloader = require('webpack-extension-reloader');
 const { VueLoaderPlugin } = require('vue-loader');
 const { version } = require('./package.json');
 const path = require('path');
+require('dotenv').config();
 
 const config = {
   mode: process.env.NODE_ENV,
   context: __dirname + '/src',
   entry: {
-    'background': './background.js',
     'popup/popup': './popup/popup.js',
     'options/options': './options/options.js',
   },
@@ -78,6 +78,7 @@ const config = {
   plugins: [
     new webpack.DefinePlugin({
       global: 'window',
+      'process.env.GA4_API_SECRET': JSON.stringify(process.env.GA4_API_SECRET || ''),
     }),
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
